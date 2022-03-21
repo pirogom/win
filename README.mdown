@@ -1,0 +1,16 @@
+About progom/win
+=========
+
+win is a Windows API wrapper package for Go.
+
+clone from [lxn/win] (https://github.com/lxn/win) for Everyone's Printer 
+
+
+
+Setup
+=====
+
+Make sure you have a working Go installation.
+See [Getting Started](http://golang.org/doc/install.html)
+
+Now run `go get github.com/pirogom/win`
