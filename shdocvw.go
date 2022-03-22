@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build windows
 // +build windows
 
 package win
@@ -187,6 +188,17 @@ func (wb2 *IWebBrowser2) Refresh() HRESULT {
 	ret, _, _ := syscall.Syscall(wb2.LpVtbl.Refresh, 1,
 		uintptr(unsafe.Pointer(wb2)),
 		0,
+		0)
+
+	return HRESULT(ret)
+}
+
+// PIROGOM
+// for Disable javascript error alert
+func (wb2 *IWebBrowser2) Put_Silent(Flag int32) HRESULT {
+	ret, _, _ := syscall.Syscall(wb2.LpVtbl.Put_Silent, 2,
+		uintptr(unsafe.Pointer(wb2)),
+		uintptr(Flag),
 		0)
 
 	return HRESULT(ret)
