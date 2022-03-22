@@ -1,4 +1,4 @@
-About progom/win
+About pirogom/win
 =========
 
 win is a Windows API wrapper package for Go.
