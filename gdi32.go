@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build windows
 // +build windows
 
 package win
@@ -765,6 +766,24 @@ const (
 	FR_NOT_ENUM = 0x20
 )
 
+/* Object Definitions for EnumObjects() */
+const (
+	OBJ_PEN         = 1
+	OBJ_BRUSH       = 2
+	OBJ_DC          = 3
+	OBJ_METADC      = 4
+	OBJ_PAL         = 5
+	OBJ_FONT        = 6
+	OBJ_BITMAP      = 7
+	OBJ_REGION      = 8
+	OBJ_METAFILE    = 9
+	OBJ_MEMDC       = 10
+	OBJ_EXTPEN      = 11
+	OBJ_ENHMETADC   = 12
+	OBJ_ENHMETAFILE = 13
+	OBJ_COLORSPACE  = 14
+)
+
 func RGB(r, g, b byte) COLORREF {
 	return COLORREF(r) | (COLORREF(g) << 8) | (COLORREF(b) << 16)
 }
@@ -1079,6 +1098,7 @@ var (
 	getEnhMetaFile          *windows.LazyProc
 	getEnhMetaFileHeader    *windows.LazyProc
 	getObject               *windows.LazyProc
+	getCurrentObject        *windows.LazyProc
 	getPixel                *windows.LazyProc
 	getRgnBox               *windows.LazyProc
 	getStockObject          *windows.LazyProc
@@ -1159,6 +1179,7 @@ func init() {
 	getEnhMetaFile = libgdi32.NewProc("GetEnhMetaFileW")
 	getEnhMetaFileHeader = libgdi32.NewProc("GetEnhMetaFileHeader")
 	getObject = libgdi32.NewProc("GetObjectW")
+	getCurrentObject = libgdi32.NewProc("GetCurrentObject")
 	getPixel = libgdi32.NewProc("GetPixel")
 	getRgnBox = libgdi32.NewProc("GetRgnBox")
 	getStockObject = libgdi32.NewProc("GetStockObject")
@@ -1575,6 +1596,14 @@ func GetObject(hgdiobj HGDIOBJ, cbBuffer uintptr, lpvObject unsafe.Pointer) int3
 		uintptr(lpvObject))
 
 	return int32(ret)
+}
+
+func GetCurrentObject(hdc HDC, inType uint32) HGDIOBJ {
+	ret, _, _ := syscall.Syscall(getCurrentObject.Addr(), 2,
+		uintptr(hdc),
+		uintptr(inType),
+		0)
+	return HGDIOBJ(ret)
 }
 
 func GetPixel(hdc HDC, nXPos, nYPos int32) COLORREF {
