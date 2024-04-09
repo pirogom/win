@@ -2453,7 +2453,7 @@ func FindWindowEx(hWndParent HWND, hWndChildAfter HWND, lpszClass *uint16, lpszW
 	ret, _, _ := syscall.Syscall6(findWindowEx.Addr(), 4,
 		uintptr(hWndParent),
 		uintptr(hWndChildAfter),
-		uintptr(unsafe.Pointer(lpszClassName)),
+		uintptr(unsafe.Pointer(lpszClass)),
 		uintptr(unsafe.Pointer(lpszWindow)),
 		0, 0)
 
