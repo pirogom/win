@@ -504,7 +504,7 @@ func Shell_NotifyIcon(dwMessage uint32, lpdata *NOTIFYICONDATA) bool {
 	return ret != 0
 }
 
-func SHObjectProperties(hWnd HWND, shopObjectType uint32, pszObjectName *uint16, pszPropertyPage *uint16) {
+func SHObjectProperties(hWnd HWND, shopObjectType uint32, pszObjectName *uint16, pszPropertyPage *uint16) bool {
 	ret, _, _ := syscall.Syscall6(shObjectProperties.Addr(), 4,
 		uintptr(hWnd),
 		uintptr(shopObjectType),
