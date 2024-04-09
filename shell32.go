@@ -2,14 +2,16 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build windows
 // +build windows
 
 package win
 
 import (
-	"golang.org/x/sys/windows"
 	"syscall"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
 )
 
 type CSIDL uint32
@@ -314,6 +316,13 @@ type SHSTOCKICONINFO struct {
 	SzPath         [MAX_PATH]uint16
 }
 
+// SHObjectProperties
+const (
+	SHOP_PRINTERNAME = 0x00000001 // pszObjectName points to a printer friendly name
+	SHOP_FILEPATH    = 0x00000002 // pszObjectName points to a fully qualified path+file name
+	SHOP_VOLUMEGUID  = 0x00000004 // pszObjectName points to a Volume GUID
+)
+
 var (
 	// Library
 	libshell32 *windows.LazyDLL
@@ -332,6 +341,7 @@ var (
 	shGetStockIconInfo     *windows.LazyProc
 	shellExecute           *windows.LazyProc
 	shell_NotifyIcon       *windows.LazyProc
+	shObjectProperties     *windows.LazyProc
 )
 
 func init() {
@@ -352,6 +362,7 @@ func init() {
 	shellExecute = libshell32.NewProc("ShellExecuteW")
 	shell_NotifyIcon = libshell32.NewProc("Shell_NotifyIconW")
 	shParseDisplayName = libshell32.NewProc("SHParseDisplayName")
+	shObjectProperties = libshell32.NewProc("SHObjectProperties")
 }
 
 func DragAcceptFiles(hWnd HWND, fAccept bool) bool {
@@ -488,6 +499,18 @@ func Shell_NotifyIcon(dwMessage uint32, lpdata *NOTIFYICONDATA) bool {
 	ret, _, _ := syscall.Syscall(shell_NotifyIcon.Addr(), 2,
 		uintptr(dwMessage),
 		uintptr(unsafe.Pointer(lpdata)),
+		0)
+
+	return ret != 0
+}
+
+func SHObjectProperties(hWnd HWND, shopObjectType uint32, pszObjectName *uint16, pszPropertyPage *uint16) {
+	ret, _, _ := syscall.Syscall6(shObjectProperties.Addr(), 4,
+		uintptr(hWnd),
+		uintptr(shopObjectType),
+		uintptr(unsafe.Pointer(pszObjectName)),
+		uintptr(unsafe.Pointer(pszPropertyPage)),
+		0,
 		0)
 
 	return ret != 0
