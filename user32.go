@@ -1899,6 +1899,7 @@ var (
 	updateWindow                *windows.LazyProc
 	windowFromDC                *windows.LazyProc
 	windowFromPoint             *windows.LazyProc
+	getWindowText               *windows.LazyProc
 )
 
 func init() {
@@ -2060,6 +2061,7 @@ func init() {
 	updateWindow = libuser32.NewProc("UpdateWindow")
 	windowFromDC = libuser32.NewProc("WindowFromDC")
 	windowFromPoint = libuser32.NewProc("WindowFromPoint")
+	getWindowText = libuser32.NewProc("GetWindowTextW")
 }
 
 func AddClipboardFormatListener(hwnd HWND) bool {
@@ -3510,4 +3512,13 @@ func WindowFromPoint(Point POINT) HWND {
 		0)
 
 	return HWND(ret)
+}
+
+func GetWindowText(hWnd HWND, lpString *uint16, nMaxCount int32) int {
+	ret, _, _ := syscall.Syscall6(getWindowText.Addr(), 3,
+		uintptr(hWnd),
+		uintptr(unsafe.Pointer(lpString)),
+		uintptr(nMaxCount),
+		0, 0, 0)
+	return int(ret)
 }
